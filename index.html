@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>PPAP Pack Builder — Waghchaure Advisory</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Free on-device PPAP pack builder for Tier-2/3 auto-component suppliers: process flow, PFMEA with AIAG-VDA Action Priority, control plan and PPAP checklist by submission level, exported to Excel. By Waghchaure Advisory, Pune.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a shop-floor working document — one sticky tab bar, dense tables, numbers in mono. */
+:root{
+  --bg:#f3f4f5; --surface:#ffffff; --surface-2:#e7eaed; --fg:#1b2026; --muted:#5a6572; --line:#cbd1d7;
+  --accent:#b7791f; --accent-fg:#ffffff; --accent-soft:#fbf1dd;
+  --ok:#2a7a46; --ok-soft:#e3f1e7; --warn:#a86a00; --warn-soft:#fbefd6; --crit:#b3261e; --crit-soft:#f8e1df;
+  --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#15191d; --surface:#1e2429; --surface-2:#262d33; --fg:#e6e9ea; --muted:#9aa6af; --line:#3a444c;
+  --accent:#e0a93d; --accent-fg:#1b2026; --accent-soft:#3a2d12;
+  --ok:#6fcf8e; --ok-soft:#1c3324; --warn:#f0b24a; --warn-soft:#3b2d12; --crit:#f08a82; --crit-soft:#432020; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#15191d; --surface:#1e2429; --surface-2:#262d33; --fg:#e6e9ea; --muted:#9aa6af; --line:#3a444c;
+  --accent:#e0a93d; --accent-fg:#1b2026; --accent-soft:#3a2d12;
+  --ok:#6fcf8e; --ok-soft:#1c3324; --warn:#f0b24a; --warn-soft:#3b2d12; --crit:#f08a82; --crit-soft:#432020; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:14px;line-height:1.45;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;padding-block:22px 14px;border-bottom:2px solid var(--fg)}
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:26px;line-height:1.1;margin:4px 0 0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+.privacy{font-size:12.5px;color:var(--muted);max-width:46ch}
+.privacy b{color:var(--fg)}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;overflow-x:auto;padding-block:10px;border-bottom:1px solid var(--line);margin-bottom:18px}
+nav.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:7px 12px;border-radius:4px;font:inherit;font-weight:500;cursor:pointer}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+section.panel h2{font-size:18px;margin:0 0 4px}
+.lede{color:var(--muted);margin:0 0 14px;max-width:70ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px}
+.grid{display:grid;gap:12px}
+.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:720px){.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+label.f span.k{font-weight:600;letter-spacing:.02em;text-transform:uppercase;font-size:10.5px}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:6px 8px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:38px}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;padding-block:6px}
+.check input{width:16px;height:16px}
+.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:7px 12px;border-radius:4px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.small{padding:4px 8px;font-size:12px;font-weight:500}
+.btn.danger{color:var(--crit)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);white-space:nowrap;position:sticky;top:0}
+td input,td select,td textarea{padding:4px 6px;font-size:12.5px}
+td select.mono{min-width:58px;text-align:center}
+td textarea{min-width:120px}
+td.num,th.num{text-align:center;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.op{margin-bottom:16px}
+.op-head{display:flex;flex-wrap:wrap;gap:8px;align-items:end;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0}
+.op-head label.f{flex:1 1 140px}
+.op-head label.f.n{flex:0 0 90px}
+.op .tablewrap{border-radius:0 0 6px 6px}
+.pill{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:500;padding:2px 7px;border-radius:3px;border:1px solid transparent;white-space:nowrap}
+.pill.H{background:var(--crit-soft);color:var(--crit);border-color:var(--crit)}
+.pill.M{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+.pill.L{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.pill.S{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.pill.R{background:var(--surface-2);color:var(--muted);border-color:var(--line)}
+.pill.star{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+.pill.na{color:var(--muted);text-decoration:line-through}
+.summary{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 14px;min-width:150px;flex:1 1 150px}
+.stat .v{font-family:var(--font-mono);font-size:22px;font-weight:500;line-height:1.1}
+.stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.note.warn{color:var(--warn)}
+.cta{margin-top:28px;border-top:2px solid var(--fg);padding-top:16px;display:grid;gap:14px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+@media (max-width:720px){.cta{grid-template-columns:1fr}}
+.cta h3{margin:0 0 6px;font-size:16px}
+.cta p{margin:0 0 8px;max-width:60ch}
+.copyline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.copyline code{font-family:var(--font-mono);background:var(--surface-2);padding:4px 8px;border-radius:4px}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;z-index:20;max-width:90vw}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin:8px 0 12px}
+.ex{font-family:var(--font-mono);font-size:11px;color:var(--warn);text-transform:uppercase;letter-spacing:.06em}
+.src{font-size:11.5px;color:var(--muted);margin-top:18px;line-height:1.5}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translateX(-50%)}}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="top">
+  <div>
+    <div class="eyebrow">Waghchaure Advisory · kriyova.in</div>
+    <h1>PPAP Pack Builder</h1>
+  </div>
+  <p class="privacy"><b>Runs entirely in your browser.</b> Part numbers, drawings and process data never leave this device. Nothing is uploaded, logged or seen by anyone else.</p>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button role="tab" id="tab-part" aria-selected="true" data-t="part">1 · Part &amp; level</button>
+  <button role="tab" id="tab-flow" aria-selected="false" data-t="flow">2 · Process flow</button>
+  <button role="tab" id="tab-fmea" aria-selected="false" data-t="fmea">3 · PFMEA</button>
+  <button role="tab" id="tab-cp" aria-selected="false" data-t="cp">4 · Control plan</button>
+  <button role="tab" id="tab-ppap" aria-selected="false" data-t="ppap">5 · PPAP checklist</button>
+  <button role="tab" id="tab-export" aria-selected="false" data-t="export">Export</button>
+</nav>
+
+<!-- 1 PART -->
+<section class="panel" id="p-part" role="tabpanel">
+  <h2>Part &amp; submission level</h2>
+  <p class="lede">Fill this once. Everything downstream (which elements you must submit, the PFMEA and control-plan headers, the PSW draft) is driven from here. <span class="ex" id="ex-flag">Example data loaded — replace with your part</span></p>
+  <div class="card">
+    <div class="grid cols-3">
+      <label class="f"><span class="k">Customer</span><input type="text" id="f-customer" data-k="customer"></label>
+      <label class="f"><span class="k">Customer part no.</span><input type="text" id="f-partNo" data-k="partNo" class="mono"></label>
+      <label class="f"><span class="k">Part name</span><input type="text" id="f-partName" data-k="partName"></label>
+      <label class="f"><span class="k">Drawing / revision</span><input type="text" id="f-rev" data-k="rev" class="mono"></label>
+      <label class="f"><span class="k">Supplier (your company)</span><input type="text" id="f-supplier" data-k="supplier"></label>
+      <label class="f"><span class="k">Supplier code</span><input type="text" id="f-supplierCode" data-k="supplierCode" class="mono"></label>
+      <label class="f"><span class="k">Submission level</span>
+        <select id="f-level" data-k="level">
+          <option value="1">Level 1 — Warrant only (plus AAR for appearance items)</option>
+          <option value="2">Level 2 — Warrant + samples + limited supporting data</option>
+          <option value="3">Level 3 — Warrant + samples + complete supporting data (default)</option>
+          <option value="4">Level 4 — Warrant + other requirements defined by customer</option>
+          <option value="5">Level 5 — Complete data reviewed at your plant</option>
+        </select></label>
+      <label class="f"><span class="k">Reason for submission</span>
+        <select id="f-reason" data-k="reason">
+          <option>Initial submission</option><option>Engineering change</option><option>Tooling transfer / replacement / refurbishment</option><option>Correction of discrepancy</option><option>Tooling inactive &gt; 1 year</option><option>Change to optional construction or material</option><option>Sub-supplier or material source change</option><option>Change in part processing</option><option>Parts produced at additional location</option><option>Other</option>
+        </select></label>
+      <label class="f"><span class="k">Target submission date</span><input type="text" id="f-date" data-k="date" placeholder="DD-MM-YYYY" class="mono"></label>
+    </div>
+    <div class="grid cols-3" style="margin-top:8px">
+      <label class="check"><input type="checkbox" id="f-appearance" data-k="appearance"> Appearance item (colour, grain, gloss specified)</label>
+      <label class="check"><input type="checkbox" id="f-designResp" data-k="designResp"> We are design-responsible (DFMEA applies)</label>
+      <label class="check"><input type="checkbox" id="f-custEng" data-k="custEng"> Customer engineering approval required (deviation / waiver)</label>
+    </div>
+    <p class="note">Level 3 is the AIAG default unless your customer's authorised representative specifies otherwise. Many Tier-1s in Chakan and PCMC specify their own level and format in their Customer-Specific Requirements; the CSR always wins over this tool.</p>
+  </div>
+</section>
+
+<!-- 2 FLOW -->
+<section class="panel" id="p-flow" role="tabpanel" hidden>
+  <h2>Process flow &amp; characteristics</h2>
+  <p class="lede">One block per operation. Each characteristic you add here becomes a line in the control plan and a seed row in the PFMEA, so you type it once. Mark special characteristics (CC / SC) — the control plan carries the symbol and the PFMEA pre-sets severity.</p>
+  <div id="ops"></div>
+  <div class="row"><button class="btn primary" id="add-op">+ Add operation</button></div>
+</section>
+
+<!-- 3 FMEA -->
+<section class="panel" id="p-fmea" role="tabpanel" hidden>
+  <h2>Process FMEA</h2>
+  <p class="lede">Rate S, O, D on 1–10. Action Priority (AP) is computed from the AIAG-VDA table; RPN is shown for customers still on the AIAG 4th-edition format. Rows seeded from characteristics stay linked to them.</p>
+  <div class="summary" id="fmea-summary"></div>
+  <div class="legend"><span class="pill H">H</span> act — action required <span class="pill M">M</span> should act, justify if not <span class="pill L">L</span> could act</div>
+  <div id="fmea-ops"></div>
+</section>
+
+<!-- 4 CP -->
+<section class="panel" id="p-cp" role="tabpanel" hidden>
+  <h2>Control plan</h2>
+  <p class="lede">Generated from the characteristics in the process flow. Edit the evaluation method, sample size, frequency, control method and reaction plan here; the characteristic itself is edited in tab 2.</p>
+  <div class="row" style="margin-bottom:10px">
+    <label class="f" style="flex:0 0 220px"><span class="k">Plan phase</span>
+      <select id="f-cpPhase" data-k="cpPhase"><option>Prototype</option><option>Pre-launch</option><option selected>Production</option></select></label>
+    <label class="f" style="flex:0 0 160px"><span class="k">Control plan no.</span><input type="text" id="f-cpNo" data-k="cpNo" class="mono"></label>
+    <label class="f" style="flex:1 1 200px"><span class="k">Core team</span><input type="text" id="f-team" data-k="team"></label>
+  </div>
+  <div class="tablewrap" id="cp-wrap"></div>
+  <p class="note">Columns follow the AIAG control-plan layout (part/process no., process name, machine, characteristics, special class, spec/tolerance, evaluation technique, sample size &amp; frequency, control method, reaction plan).</p>
+</section>
+
+<!-- 5 PPAP -->
+<section class="panel" id="p-ppap" role="tabpanel" hidden>
+  <h2>PPAP checklist — <span id="lvl-label"></span></h2>
+  <p class="lede">The 18 elements with what your chosen level asks for. Track status and owner per element; readiness counts only the elements you must have for this level.</p>
+  <div class="summary" id="ppap-summary"></div>
+  <div class="legend"><span class="pill S">S</span> submit to customer, retain copy <span class="pill R">R</span> retain at plant, available on request <span class="pill star">*</span> retain, submit if customer asks <span class="pill na">n/a</span> not applicable to this part</div>
+  <div class="tablewrap"><table id="ppap-table"><thead><tr><th class="num">#</th><th>Element</th><th class="num">Level req.</th><th>Status</th><th>Owner</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+  <p class="note">Level codes cross-checked against the AIAG PPAP 4th-edition retention/submission table as reproduced in several Tier-1 supplier manuals. Your customer's CSR overrides it. Bulk-material requirements, if your customer demands them, are not covered here.</p>
+</section>
+
+<!-- EXPORT -->
+<section class="panel" id="p-export" role="tabpanel" hidden>
+  <h2>Export</h2>
+  <p class="lede">One workbook with five sheets: Process Flow, PFMEA, Control Plan, PPAP Checklist and a PSW header draft. Open it in Excel, apply your customer's format, and submit.</p>
+  <div class="card">
+    <div class="row">
+      <button class="btn primary" id="btn-xlsx">Download Excel workbook (.xlsx)</button>
+      <button class="btn" id="btn-json">Download backup (.json)</button>
+      <label class="btn" for="file-json" style="display:inline-block">Restore from backup <input type="file" id="file-json" accept="application/json,.json" hidden></label>
+      <button class="btn danger" id="btn-reset">Clear and start blank</button>
+    </div>
+    <p class="note">Your work is also kept in this browser automatically, on this device only. Take a backup before clearing browser data.</p>
+  </div>
+
+  <div class="cta">
+    <div>
+      <h3>Submitting to a new Tier-1 for the first time, or had a pack bounced?</h3>
+      <p>Aniket Waghchaure reviews first-submission PPAP packs for suppliers in Chakan, PCMC and Ranjangaon before they go to the customer: element by element against the customer's specific requirements, with the PFMEA and control plan tied to real process data. He has sat on the receiving side of PPAP as the customer's reviewer, so the review reads the pack the way your SQE will. Lean Six Sigma Black Belt, PMP, 17 years in automotive and industrial operations.</p>
+      <p>Your pack and drawings stay under NDA; nothing is processed outside your own files. Fee is quoted by reply after a 20-minute call, per customer onboarding.</p>
+      <form id="review-form" class="grid cols-2" novalidate>
+        <label class="f"><span class="k">Your name</span><input type="text" id="rf-name" name="name" required autocomplete="name"></label>
+        <label class="f"><span class="k">Company</span><input type="text" id="rf-company" name="company" required autocomplete="organization"></label>
+        <label class="f"><span class="k">Role</span><input type="text" id="rf-role" name="role" placeholder="QA Head / Plant Head / Director"></label>
+        <label class="f"><span class="k">Work email</span><input type="text" id="rf-email" name="email" required inputmode="email" autocomplete="email"></label>
+        <label class="f"><span class="k">Phone / WhatsApp (optional)</span><input type="text" id="rf-phone" name="phone" inputmode="tel" autocomplete="tel"></label>
+        <label class="f"><span class="k">Customer you are submitting to</span><input type="text" id="rf-customer" name="customer" placeholder="Tier-1 / OEM name"></label>
+        <label class="f"><span class="k">Parts in scope</span><input type="text" id="rf-parts" name="parts" placeholder="e.g. 3 part numbers, Level 3"></label>
+        <label class="f"><span class="k">Target submission date</span><input type="text" id="rf-date" name="date" placeholder="DD-MM-YYYY" class="mono"></label>
+        <label class="check" style="grid-column:1/-1"><input type="checkbox" id="rf-consent" required> I agree to be contacted about this request and to receive occasional supplier-quality notes from Waghchaure Advisory. Unsubscribe any time.</label>
+        <div class="row" style="grid-column:1/-1"><button class="btn primary" type="submit" id="rf-submit">Request a submission review</button><span class="note" id="rf-status" style="margin:0"></span></div>
+      </form>
+      <div class="copyline" style="margin-top:12px"><code id="mail">aniket@kriyova.in</code><button class="btn small" id="copy-mail" type="button">Copy email</button><a class="btn small" id="wa-link" href="#" target="_blank" rel="noopener">WhatsApp</a></div>
+    </div>
+    <div>
+      <h3>Supplier-quality notes, once a fortnight</h3>
+      <p>Short, practical: what Tier-1 SQEs reject and why, AIAG-VDA changes, CSR quirks of the Pune Tier-1s. No selling.</p>
+      <form id="sub-form" class="grid" novalidate>
+        <label class="f"><span class="k">Work email</span><input type="text" id="sf-email" name="email" required inputmode="email" autocomplete="email"></label>
+        <label class="f"><span class="k">Company (optional)</span><input type="text" id="sf-company" name="company"></label>
+        <label class="check"><input type="checkbox" id="sf-consent" required> I agree to receive these notes. Unsubscribe any time.</label>
+        <div class="row"><button class="btn" type="submit" id="sf-submit">Get the notes</button><span class="note" id="sf-status" style="margin:0"></span></div>
+      </form>
+      <h3 style="margin-top:18px">What this tool does not do</h3>
+      <p>It does not replace the AIAG manuals or your customer's CSR, does not do MSA, capability or dimensional studies, and does not know your process. Severity, occurrence and detection ratings are yours to defend in the audit.</p>
+    </div>
+  </div>
+  <p class="src">Action Priority per AIAG-VDA FMEA Handbook (2019) AP table. PPAP element list and level codes per AIAG PPAP 4th edition, Table 4.2, as reproduced in Tier-1 supplier manuals. Built by Waghchaure Advisory, Pune · <a href="https://kriyova.in">kriyova.in</a> · Runs entirely in your browser; this page sets no cookies and sends nothing unless you submit a form.</p>
+</section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* ===== SITE CONFIG — edit these four lines only ===== */
+const CONFIG={
+  // Google Form that feeds your subscriber sheet. Create a form with fields in this order:
+  // Name, Company, Role, Email, Phone, Customer (Tier-1), Parts in scope, Target date, Type, Consent.
+  // Then paste the form's "formResponse" URL and the entry IDs (see SETUP.md).
+  formAction:'https://docs.google.com/forms/d/e/1FAIpQLSeL_SSVUYKCV5ZmpPivVe_jJSt80sZM6NF-f-PSGJL38hH7AQ/formResponse', // wired 2026-10-20
+  entry:{name:'entry.520848258',company:'entry.2063310824',role:'entry.184536546',email:'entry.515529066',phone:'entry.400051247',customer:'entry.113778517',parts:'entry.2124659094',date:'entry.460979472',type:'entry.457964029',consent:'entry.1675752570'},
+  contactEmail:'aniket@kriyova.in',
+  whatsapp:'918793853307'  // digits only, used for the wa.me link
+};
+/* ===================================================== */
+const LS_KEY='kriyova.ppap.v1';
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+/* ---------- Reference data (verified; see footer) ---------- */
+// AIAG PPAP 4th ed. Table 4.2. Codes per level 1..5. S=submit, R=retain, *=retain & submit on request.
+const PPAP_ELEMENTS=[
+ [1,'Design Record',['R','S','S','*','R']],
+ [2,'Authorised Engineering Change Documents',['R','S','S','*','R']],
+ [3,'Customer Engineering Approval (if required)',['R','R','S','*','R'],'custEng'],
+ [4,'Design FMEA',['R','R','S','*','R'],'designResp'],
+ [5,'Process Flow Diagram',['R','R','S','*','R']],
+ [6,'Process FMEA',['R','R','S','*','R']],
+ [7,'Control Plan',['R','R','S','*','R']],
+ [8,'Measurement System Analysis studies',['R','R','S','*','R']],
+ [9,'Dimensional Results',['R','S','S','*','R']],
+ [10,'Material / Performance Test Results',['R','S','S','*','R']],
+ [11,'Initial Process Studies (Ppk / Cpk)',['R','R','S','*','R']],
+ [12,'Qualified Laboratory Documentation',['R','S','S','*','R']],
+ [13,'Appearance Approval Report (AAR)',['S','S','S','*','R'],'appearance'],
+ [14,'Sample Production Parts',['R','S','S','*','R']],
+ [15,'Master Sample',['R','R','R','*','R']],
+ [16,'Checking Aids',['R','R','R','*','R']],
+ [17,'Customer-Specific Requirements records',['R','R','S','*','R']],
+ [18,'Part Submission Warrant (PSW)',['S','S','S','S','R']]
+];
+// AIAG-VDA Action Priority (PFMEA). Verified against the published AP table.
+function AP(S,O,D){
+  if(S<=1) return 'L';
+  if(S>=9){ if(O>=6) return 'H'; if(O>=4) return D<=1?'M':'H'; if(O>=2) return D>=7?'H':(D>=5?'M':'L'); return 'L'; }
+  if(S>=7){ if(O>=8) return 'H'; if(O>=6) return D<=1?'M':'H'; if(O>=4) return D>=7?'H':'M'; if(O>=2) return D>=5?'M':'L'; return 'L'; }
+  if(S>=4){ if(O>=8) return D>=5?'H':'M'; if(O>=6) return D<=1?'L':'M'; if(O>=4) return D>=7?'M':'L'; return 'L'; }
+  if(O>=8) return D>=5?'M':'L'; return 'L';
+}
+window.__AP=AP; // exposed for a self-test
+
+/* ---------- State ---------- */
+function exampleState(){
+  const op=(no,name,machine,chars)=>({id:uid(),no,name,machine,chars});
+  const ch=(name,type,spec,cls,method,size,freq,control,reaction)=>({id:uid(),name,type,spec,cls,method,size,freq,control,reaction});
+  return {
+    example:true,
+    part:{customer:'Example Tier-1 Pvt. Ltd., Chakan',partNo:'EX-4471-A',partName:'Output shaft, 25 mm',rev:'DRG-4471 Rev C',supplier:'Your Company Pvt. Ltd.',supplierCode:'S-0000',level:'3',reason:'Initial submission',date:'',appearance:false,designResp:false,custEng:false,cpPhase:'Production',cpNo:'CP-4471-01',team:'Quality, Production, Maintenance'},
+    ops:[
+      op('10','Bar cutting','Bandsaw BS-02',[ch('Cut length','Product','152 ± 1.0 mm','','Vernier 0–300','5 pcs','Per lot','Setup approval + lot check','Hold lot, re-cut, inform supervisor')]),
+      op('20','CNC turning — OD & shoulder','CNC lathe TL-07',[
+        ch('Outer diameter','Product','Ø25 h7 (25.000 / 24.979)','SC','Snap gauge GO/NO-GO + micrometer','1 pc','Every 30 min','SPC X̄-R chart','Stop machine, segregate from last OK check, offset tool, re-verify'),
+        ch('Shoulder length','Product','48.0 ± 0.1 mm','','Height gauge','1 pc','Every hour','Check sheet','Segregate, re-set, 100% check last hour'),
+        ch('Insert life','Process','≤ 180 pcs per edge','','Counter','—','Every edge change','Tool-change log','Change insert, verify first-off')]),
+      op('30','Cross-hole drilling','Drill-tap centre DT-03',[ch('Hole position','Product','12.0 ± 0.2 mm from face','','Fixture gauge','1 pc','Every hour','Check sheet','Segregate, check fixture clamping')]),
+      op('40','Induction hardening','Induction unit IH-01',[
+        ch('Surface hardness','Product','55–60 HRC','CC','Rockwell tester','2 pcs','Per batch','Batch record + heat-treat chart','Quarantine batch, 100% test, MRB'),
+        ch('Case depth','Product','0.8–1.2 mm (effective)','CC','Micro-hardness traverse','1 pc','Per batch','Lab report','Quarantine batch, MRB'),
+        ch('Coil power & time','Process','Per parameter sheet IH-01-P','','Machine display','—','Start of shift','Parameter sheet sign-off','Stop, re-set, re-qualify first batch')]),
+      op('50','Final inspection & packing','Inspection bench',[ch('Visual / burr-free','Product','No burrs, no rust, no dents','','Visual + 10x','100%','Each pc','Inspection record','Rework or reject; alert production')])
+    ],
+    fmea:[],
+    checklist:{}
+  };
+}
+function seedFmea(st){
+  // one row per characteristic, linked; keep existing rows
+  const have=new Set(st.fmea.filter(r=>r.charId).map(r=>r.charId));
+  for(const op of st.ops) for(const c of op.chars){
+    if(!have.has(c.id)) st.fmea.push({id:uid(),opId:op.id,charId:c.id,mode:'',effect:'',S:c.cls==='CC'?9:(c.cls==='SC'?7:5),cause:'',O:4,prev:'',det:'',D:5,action:'',resp:''});
+  }
+  // drop rows whose characteristic was deleted
+  const ids=new Set(st.ops.flatMap(o=>o.chars.map(c=>c.id)));
+  st.fmea=st.fmea.filter(r=>!r.charId||ids.has(r.charId));
+  const opIds=new Set(st.ops.map(o=>o.id));
+  st.fmea=st.fmea.filter(r=>opIds.has(r.opId));
+}
+let st=null;
+try{ const raw=localStorage.getItem(LS_KEY); if(raw) st=JSON.parse(raw); }catch(e){ st=null; }
+if(!st||!st.part||!Array.isArray(st.ops)) st=exampleState();
+seedFmea(st);
+if(st.example&&st.fmea.length){ // seed example failure modes for the first CC row only, so the AP demo is visible
+  const hard=st.fmea.find(r=>{const c=findChar(r.charId);return c&&c.name==='Surface hardness';});
+  if(hard&&!hard.mode){Object.assign(hard,{mode:'Hardness below 55 HRC',effect:'Premature wear / spline failure in vehicle',cause:'Coil power drift; quench concentration low',prev:'Parameter sheet sign-off; quench conc. check per shift',det:'Rockwell test 2 pcs/batch',S:9,O:3,D:5,action:'Add quench concentration to SPC; poka-yoke on power setpoint',resp:'Maint. — Mr. Example'});}
+}
+function findChar(id){ for(const o of st.ops) for(const c of o.chars) if(c.id===id) return c; return null; }
+function findOp(id){ return st.ops.find(o=>o.id===id)||null; }
+let saveT=null;
+function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem(LS_KEY,JSON.stringify(st)); }catch(e){} },250); }
+function touched(){ if(st.example){ st.example=false; document.getElementById('ex-flag').hidden=true; } save(); }
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const el=(tag,attrs={},...kids)=>{const n=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==='class')n.className=v;else if(k==='html')n.innerHTML=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)n.setAttribute(k,v);}for(const k of kids){if(k==null)continue;n.append(k.nodeType?k:document.createTextNode(k));}return n;};
+function toast(msg){ const t=el('div',{class:'toast',role:'status'},msg); document.body.append(t); setTimeout(()=>t.remove(),2200); }
+function inp(obj,key,opts={}){ const i=el(opts.textarea?'textarea':'input',{type:'text',value:'',class:opts.mono?'mono':null,placeholder:opts.ph||null}); i.value=obj[key]??''; i.addEventListener('input',()=>{obj[key]=i.value;touched();if(opts.after)opts.after();}); return i; }
+function sel(obj,key,options,after){ const s=el('select'); for(const[v,l]of options){ s.append(el('option',{value:v},l)); } s.value=obj[key]; s.addEventListener('change',()=>{obj[key]=s.value;touched();if(after)after();}); return s; }
+function numSel(obj,key,after){ const s=el('select',{class:'mono'}); for(let i=1;i<=10;i++) s.append(el('option',{value:i},String(i))); s.value=obj[key]; s.addEventListener('change',()=>{obj[key]=+s.value;touched();if(after)after();}); return s; }
+
+/* ---------- Tabs ---------- */
+const tabs=[...document.querySelectorAll('nav.tabs button')];
+function show(t){ for(const b of tabs){ const on=b.dataset.t===t; b.setAttribute('aria-selected',on); document.getElementById('p-'+b.dataset.t).hidden=!on; } if(t==='fmea')renderFmea(); if(t==='cp')renderCP(); if(t==='ppap')renderPPAP(); try{localStorage.setItem(LS_KEY+'.tab',t);}catch(e){} }
+tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.t)));
+
+/* ---------- Part form ---------- */
+document.querySelectorAll('[data-k]').forEach(f=>{
+  const k=f.dataset.k;
+  if(f.type==='checkbox'){ f.checked=!!st.part[k]; f.addEventListener('change',()=>{st.part[k]=f.checked;touched();}); }
+  else { f.value=st.part[k]??''; f.addEventListener('input',()=>{st.part[k]=f.value;touched();}); f.addEventListener('change',()=>{st.part[k]=f.value;touched();}); }
+});
+document.getElementById('ex-flag').hidden=!st.example;
+
+/* ---------- Process flow ---------- */
+const CLS=[['','—'],['CC','CC · Critical'],['SC','SC · Significant']];
+const TYPE=[['Product','Product'],['Process','Process']];
+function renderOps(){
+  const root=$('#ops'); root.innerHTML='';
+  st.ops.forEach((op,oi)=>{
+    const head=el('div',{class:'op-head'},
+      el('label',{class:'f n'},el('span',{class:'k'},'Op no.'),inp(op,'no',{mono:true})),
+      el('label',{class:'f'},el('span',{class:'k'},'Operation'),inp(op,'name')),
+      el('label',{class:'f'},el('span',{class:'k'},'Machine / device / tool'),inp(op,'machine')),
+      el('div',{class:'row'},
+        el('button',{class:'btn small',onclick:()=>{op.chars.push({id:uid(),name:'',type:'Product',spec:'',cls:'',method:'',size:'',freq:'',control:'',reaction:''});seedFmea(st);touched();renderOps();}},'+ Characteristic'),
+        el('button',{class:'btn small',disabled:oi===0,onclick:()=>{[st.ops[oi-1],st.ops[oi]]=[st.ops[oi],st.ops[oi-1]];touched();renderOps();}},'↑'),
+        el('button',{class:'btn small',disabled:oi===st.ops.length-1,onclick:()=>{[st.ops[oi+1],st.ops[oi]]=[st.ops[oi],st.ops[oi+1]];touched();renderOps();}},'↓'),
+        el('button',{class:'btn small danger',onclick:()=>{st.ops.splice(oi,1);seedFmea(st);touched();renderOps();}},'Remove op')));
+    const tb=el('tbody');
+    op.chars.forEach((c,ci)=>{
+      tb.append(el('tr',{},
+        el('td',{class:'num'},String(ci+1)),
+        el('td',{},inp(c,'name',{ph:'Characteristic'})),
+        el('td',{},sel(c,'type',TYPE)),
+        el('td',{},inp(c,'spec',{ph:'Spec / tolerance',mono:true})),
+        el('td',{},sel(c,'cls',CLS)),
+        el('td',{},el('button',{class:'btn small danger',onclick:()=>{op.chars.splice(ci,1);seedFmea(st);touched();renderOps();}},'×'))));
+    });
+    const table=el('table',{},el('thead',{},el('tr',{},el('th',{class:'num'},'#'),el('th',{},'Characteristic'),el('th',{},'Product / process'),el('th',{},'Specification / tolerance'),el('th',{},'Special class'),el('th',{},''))),tb);
+    if(!op.chars.length) tb.append(el('tr',{},el('td',{colspan:'6',class:'note'},'No characteristics yet. Add at least one product characteristic per operation that affects fit, function or safety.')));
+    root.append(el('div',{class:'op'},head,el('div',{class:'tablewrap'},table)));
+  });
+}
+$('#add-op').addEventListener('click',()=>{ const last=st.ops[st.ops.length-1]; const no=last&&/^\d+$/.test(last.no)?String(+last.no+10):''; st.ops.push({id:uid(),no,name:'',machine:'',chars:[]}); touched(); renderOps(); });
+renderOps();
+
+/* ---------- PFMEA ---------- */
+function renderFmea(){
+  seedFmea(st);
+  const root=$('#fmea-ops'); root.innerHTML='';
+  let H=0,M=0,L=0,n=0;
+  st.ops.forEach(op=>{
+    const rows=st.fmea.filter(r=>r.opId===op.id);
+    const tb=el('tbody');
+    const draw=()=>{ tb.innerHTML=''; rows.forEach((r,ri)=>{
+      const c=r.charId?findChar(r.charId):null;
+      const apCell=el('td',{class:'num'}), rpnCell=el('td',{class:'num'});
+      const upd=()=>{ const a=AP(r.S,r.O,r.D); apCell.innerHTML=''; apCell.append(el('span',{class:'pill '+a},a)); rpnCell.textContent=String(r.S*r.O*r.D); refreshSummary(); };
+      tb.append(el('tr',{},
+        el('td',{class:'num'},String(ri+1)),
+        el('td',{},c?el('span',{},c.name+(c.cls?' ':''),c.cls?el('span',{class:'pill S'},c.cls):null):inp(r,'func',{ph:'Process function / element'})),
+        el('td',{},inp(r,'mode',{textarea:true,ph:'Failure mode'})),
+        el('td',{},inp(r,'effect',{textarea:true,ph:'Effect on customer / next op'})),
+        el('td',{class:'num'},numSel(r,'S',upd)),
+        el('td',{},inp(r,'cause',{textarea:true,ph:'Cause'})),
+        el('td',{},inp(r,'prev',{textarea:true,ph:'Prevention control'})),
+        el('td',{class:'num'},numSel(r,'O',upd)),
+        el('td',{},inp(r,'det',{textarea:true,ph:'Detection control'})),
+        el('td',{class:'num'},numSel(r,'D',upd)),
+        apCell,rpnCell,
+        el('td',{},inp(r,'action',{textarea:true,ph:'Recommended action'})),
+        el('td',{},inp(r,'resp',{ph:'Resp. / date'})),
+        el('td',{},el('button',{class:'btn small danger',onclick:()=>{st.fmea.splice(st.fmea.indexOf(r),1);rows.splice(ri,1);touched();draw();}},'×'))));
+      upd();
+    }); };
+    draw();
+    const addBtn=el('button',{class:'btn small',onclick:()=>{const r={id:uid(),opId:op.id,charId:null,func:'',mode:'',effect:'',S:5,cause:'',O:4,prev:'',det:'',D:5,action:'',resp:''};st.fmea.push(r);rows.push(r);touched();draw();}},'+ Row (unlinked)');
+    root.append(el('div',{class:'op'},
+      el('div',{class:'op-head'},el('div',{style:'flex:1 1 auto'},el('span',{class:'eyebrow'},'Op '+(op.no||'?')),el('div',{style:'font-weight:600'},op.name||'(unnamed operation)'),el('div',{class:'note',style:'margin:0'},op.machine||'')),addBtn),
+      el('div',{class:'tablewrap'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'num'},'#'),el('th',{},'Characteristic / function'),el('th',{},'Failure mode'),el('th',{},'Effect'),el('th',{class:'num'},'S'),el('th',{},'Cause'),el('th',{},'Prevention'),el('th',{class:'num'},'O'),el('th',{},'Detection'),el('th',{class:'num'},'D'),el('th',{class:'num'},'AP'),el('th',{class:'num'},'RPN'),el('th',{},'Action'),el('th',{},'Resp.'),el('th',{},''))),tb))));
+  });
+  function refreshSummary(){ H=M=L=0;n=0; for(const r of st.fmea){ n++; const a=AP(r.S,r.O,r.D); if(a==='H')H++;else if(a==='M')M++;else L++; }
+    const s=$('#fmea-summary'); s.innerHTML=''; s.append(stat(n,'rows'),stat(H,'AP high — action required','H'),stat(M,'AP medium','M'),stat(L,'AP low','L')); }
+  refreshSummary();
+}
+function stat(v,k,cls){ const d=el('div',{class:'stat'},el('div',{class:'v'+(cls?' pill-'+cls:'')},String(v)),el('div',{class:'k'},k)); if(cls){ d.querySelector('.v').style.color=cls==='H'?'var(--crit)':cls==='M'?'var(--warn)':'var(--ok)'; } return d; }
+
+/* ---------- Control plan ---------- */
+function renderCP(){
+  const w=$('#cp-wrap'); w.innerHTML='';
+  const tb=el('tbody'); let k=0;
+  st.ops.forEach(op=>{
+    if(!op.chars.length){ tb.append(el('tr',{},el('td',{class:'num mono'},op.no),el('td',{},op.name),el('td',{},op.machine),el('td',{colspan:'10',class:'note'},'No characteristics — add some in tab 2.'))); return; }
+    op.chars.forEach((c,ci)=>{ k++;
+      tb.append(el('tr',{},
+        el('td',{class:'num mono'},ci===0?op.no:''),el('td',{},ci===0?op.name:''),el('td',{},ci===0?op.machine:''),
+        el('td',{class:'num'},String(k)),
+        el('td',{},c.type==='Product'?c.name:''),el('td',{},c.type==='Process'?c.name:''),
+        el('td',{class:'num'},c.cls?el('span',{class:'pill S'},c.cls):'—'),
+        el('td',{class:'mono'},c.spec),
+        el('td',{},inp(c,'method',{ph:'Gauge / technique'})),
+        el('td',{},inp(c,'size',{ph:'n'})),el('td',{},inp(c,'freq',{ph:'Frequency'})),
+        el('td',{},inp(c,'control',{ph:'Control method'})),
+        el('td',{},inp(c,'reaction',{textarea:true,ph:'Reaction plan'}))));
+    });
+  });
+  w.append(el('table',{},el('thead',{},el('tr',{},el('th',{class:'num'},'Part / process no.'),el('th',{},'Process name'),el('th',{},'Machine / device / jig / tool'),el('th',{class:'num'},'Char. no.'),el('th',{},'Product char.'),el('th',{},'Process char.'),el('th',{class:'num'},'Special class'),el('th',{},'Spec / tolerance'),el('th',{},'Evaluation technique'),el('th',{},'Sample size'),el('th',{},'Frequency'),el('th',{},'Control method'),el('th',{},'Reaction plan'))),tb));
+}
+
+/* ---------- PPAP checklist ---------- */
+const STATUS=[['todo','Not started'],['wip','In progress'],['done','Complete']];
+function elementReq(e){ const code=e[2][+st.part.level-1]; const flag=e[3]; if(flag&&!st.part[flag]) return 'na'; return code; }
+function renderPPAP(){
+  $('#lvl-label').textContent='Level '+st.part.level;
+  const tb=$('#ppap-table tbody'); tb.innerHTML='';
+  let must=0,done=0,retain=0,retainDone=0;
+  for(const e of PPAP_ELEMENTS){
+    const req=elementReq(e); const c=st.checklist[e[0]]||(st.checklist[e[0]]={status:'todo',owner:'',note:''});
+    if(req==='S'){must++; if(c.status==='done')done++;} else if(req!=='na'){retain++; if(c.status==='done')retainDone++;}
+    const pill=el('span',{class:'pill '+(req==='*'?'star':req)},req==='na'?'n/a':req);
+    tb.append(el('tr',{style:req==='na'?'opacity:.55':''},
+      el('td',{class:'num'},String(e[0])),el('td',{},e[1]+(e[3]?' ':''),e[3]?el('span',{class:'note',style:'margin:0;display:block'},e[3]==='appearance'?'only for appearance items':e[3]==='designResp'?'only if design-responsible':'only if customer requires'):null),
+      el('td',{class:'num'},pill),
+      el('td',{},sel(c,'status',STATUS,renderPPAP)),
+      el('td',{},inp(c,'owner',{ph:'Owner'})),
+      el('td',{},inp(c,'note',{ph:'Document ref. / note'}))));
+  }
+  const s=$('#ppap-summary'); s.innerHTML='';
+  const pct=must?Math.round(done/must*100):0;
+  const a=stat(done+' / '+must,'submit elements complete'); a.append(el('div',{class:'bar'},el('i',{style:'width:'+pct+'%'})));
+  s.append(a,stat(retainDone+' / '+retain,'retain-at-plant elements complete'),stat(pct+'%','submission readiness'));
+}
+
+/* ---------- Export ---------- */
+function offer(filename,data){
+  try{
+    const blob=data instanceof Blob?data:new Blob([data],{type:filename.endsWith('.json')?'application/json':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.append(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000); toast('Downloading '+filename);
+    window.__lastDownload=filename;
+  }catch(e){ toast('Could not start the download'); }
+}
+function buildWorkbook(){
+  const p=st.part; const wb=XLSX.utils.book_new();
+  const hdr=[['Customer',p.customer,'','Part no.',p.partNo,'','Part name',p.partName],['Drawing / rev',p.rev,'','Supplier',p.supplier,'','Supplier code',p.supplierCode],['Submission level',p.level,'','Reason',p.reason,'','Target date',p.date],[]];
+  // Process flow
+  const pf=[...hdr,['PROCESS FLOW DIAGRAM'],['Op no.','Operation','Machine / device / tool','Characteristic','Product / process','Specification / tolerance','Special class']];
+  for(const op of st.ops){ if(!op.chars.length) pf.push([op.no,op.name,op.machine,'','','','']); op.chars.forEach((c,i)=>pf.push([i===0?op.no:'',i===0?op.name:'',i===0?op.machine:'',c.name,c.type,c.spec,c.cls])); }
+  XLSX.utils.book_append_sheet(wb,sheet(pf,[10,28,24,26,12,28,10]),'Process Flow');
+  // PFMEA
+  const fm=[...hdr,['PROCESS FMEA (AIAG-VDA structure; RPN shown for 4th-edition customers)'],['Op no.','Operation','Characteristic / function','Failure mode','Failure effect','S','Failure cause','Prevention control','O','Detection control','D','AP','RPN','Recommended action','Responsibility / date']];
+  for(const op of st.ops) for(const r of st.fmea.filter(r=>r.opId===op.id)){ const c=r.charId?findChar(r.charId):null; fm.push([op.no,op.name,c?c.name+(c.cls?' ['+c.cls+']':''):(r.func||''),r.mode,r.effect,r.S,r.cause,r.prev,r.O,r.det,r.D,AP(r.S,r.O,r.D),r.S*r.O*r.D,r.action,r.resp]); }
+  XLSX.utils.book_append_sheet(wb,sheet(fm,[8,22,24,28,28,4,28,26,4,26,4,5,6,28,18]),'PFMEA');
+  // Control plan
+  const cp=[...hdr,['CONTROL PLAN — '+p.cpPhase+(p.cpNo?' — '+p.cpNo:''),'','','Core team',p.team],['Part / process no.','Process name','Machine / device / jig / tool','Char. no.','Product characteristic','Process characteristic','Special class','Spec / tolerance','Evaluation / measurement technique','Sample size','Frequency','Control method','Reaction plan']];
+  let k=0; for(const op of st.ops) op.chars.forEach((c,i)=>{k++;cp.push([i===0?op.no:'',i===0?op.name:'',i===0?op.machine:'',k,c.type==='Product'?c.name:'',c.type==='Process'?c.name:'',c.cls,c.spec,c.method,c.size,c.freq,c.control,c.reaction]);});
+  XLSX.utils.book_append_sheet(wb,sheet(cp,[10,22,22,6,22,22,8,24,24,8,12,22,30]),'Control Plan');
+  // PPAP checklist
+  const ck=[...hdr,['PPAP CHECKLIST — Level '+p.level+' (S = submit & retain copy; R = retain at plant, available on request; * = retain, submit on request)'],['#','Element','Requirement at level '+p.level,'Status','Owner','Document ref. / note']];
+  for(const e of PPAP_ELEMENTS){ const req=elementReq(e); const c=st.checklist[e[0]]||{}; ck.push([e[0],e[1],req==='na'?'n/a':req,(STATUS.find(s=>s[0]===c.status)||STATUS[0])[1],c.owner||'',c.note||'']); }
+  XLSX.utils.book_append_sheet(wb,sheet(ck,[4,44,20,14,18,30]),'PPAP Checklist');
+  // PSW header draft
+  const psw=[['PART SUBMISSION WARRANT — HEADER DRAFT (transfer to the customer\'s PSW form)'],[],['Part name',p.partName],['Customer part number',p.partNo],['Engineering drawing / change level',p.rev],['Submitted by (organisation)',p.supplier],['Supplier / vendor code',p.supplierCode],['Customer',p.customer],['Submission level',p.level],['Reason for submission',p.reason],['Target submission date',p.date],['Appearance item',p.appearance?'Yes':'No'],['Design-responsible',p.designResp?'Yes':'No'],[],['Declaration (to be signed by authorised supplier representative)','I affirm that the samples represented by this warrant are representative of our parts, were made by a process that meets all design record requirements, and that the submission meets the customer\'s requirements. Mould / cavity / production process details and any deviations are listed on the PSW form.'],[],['Generated with PPAP Pack Builder — Waghchaure Advisory, Pune (kriyova.in). Verify against AIAG PPAP 4th edition and the customer CSR before submission.']];
+  XLSX.utils.book_append_sheet(wb,sheet(psw,[40,80]),'PSW Draft');
+  return XLSX.write(wb,{bookType:'xlsx',type:'array'});
+}
+function sheet(aoa,widths){ const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=widths.map(w=>({wch:w})); return ws; }
+function fname(ext){ const base=(st.part.partNo||'part').replace(/[^\w.-]+/g,'_'); return 'PPAP_'+base+'_L'+st.part.level+'.'+ext; }
+$('#btn-xlsx').addEventListener('click',()=>{ if(!window.XLSX){toast('Spreadsheet library did not load');return;} offer(fname('xlsx'),buildWorkbook()); });
+$('#btn-json').addEventListener('click',()=>offer(fname('json'),JSON.stringify(st,null,1)));
+$('#file-json').addEventListener('change',ev=>{ const f=ev.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=()=>{ try{ const o=JSON.parse(rd.result); if(!o.part||!Array.isArray(o.ops)) throw 0; st=o; seedFmea(st); save(); location.reload(); }catch(e){ toast('That file is not a PPAP Pack Builder backup'); } }; rd.readAsText(f); ev.target.value=''; });
+let resetArmed=false;
+$('#btn-reset').addEventListener('click',function(){ if(!resetArmed){ resetArmed=true; this.textContent='Click again to confirm — this clears everything'; setTimeout(()=>{resetArmed=false;this.textContent='Clear and start blank';},4000); return; } st={example:false,part:{customer:'',partNo:'',partName:'',rev:'',supplier:'',supplierCode:'',level:'3',reason:'Initial submission',date:'',appearance:false,designResp:false,custEng:false,cpPhase:'Production',cpNo:'',team:''},ops:[{id:uid(),no:'10',name:'',machine:'',chars:[]}],fmea:[],checklist:{}}; try{localStorage.setItem(LS_KEY,JSON.stringify(st));}catch(e){} location.reload(); });
+$('#copy-mail').addEventListener('click',async()=>{ const t=$('#mail').textContent; try{ await navigator.clipboard.writeText(t); toast('Email copied'); }catch(e){ const r=document.createRange(); r.selectNodeContents($('#mail')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast('Select and copy the address'); } });
+
+
+/* ---------- Forms → Google Form (configured in CONFIG) ---------- */
+const emailOk=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+function postToForm(fields){
+  // fields: {name,company,role,email,phone,customer,parts,date,type,consent}
+  if(!CONFIG.formAction) return Promise.resolve('unconfigured');
+  const fd=new FormData();
+  for(const [k,v] of Object.entries(fields)){ const id=CONFIG.entry[k]; if(id&&v!=null) fd.append(id,String(v)); }
+  // Google Forms accepts cross-origin POSTs in no-cors mode; the response is opaque, so success = no network error.
+  return fetch(CONFIG.formAction,{method:'POST',mode:'no-cors',body:fd}).then(()=>'ok').catch(()=>'error');
+}
+function mailtoFallback(fields){
+  const body=Object.entries(fields).filter(([k,v])=>v).map(([k,v])=>k+': '+v).join('%0A');
+  return 'mailto:'+CONFIG.contactEmail+'?subject='+encodeURIComponent('PPAP submission review request — '+(fields.company||''))+'&body='+body;
+}
+async function handle(formId,statusId,btnId,collect){
+  const f=$('#'+formId), st_=$('#'+statusId), btn=$('#'+btnId);
+  f.addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const fields=collect();
+    if(!emailOk(fields.email)){ st_.textContent='Enter a valid work email.'; return; }
+    if(fields.type==='review'&&(!fields.name.trim()||!fields.company.trim())){ st_.textContent='Name and company are needed.'; return; }
+    if(!fields.consent){ st_.textContent='Please tick the consent box.'; return; }
+    btn.disabled=true; st_.textContent='Sending…';
+    const r=await postToForm(fields);
+    if(r==='ok'){ st_.textContent=fields.type==='review'?'Received. You will hear back within one working day.':'Done. First note arrives with the next issue.'; f.reset(); }
+    else if(r==='unconfigured'){ st_.innerHTML='Form not wired yet — <a href="'+mailtoFallback(fields)+'">send this by email instead</a>.'; }
+    else { st_.innerHTML='Could not send. <a href="'+mailtoFallback(fields)+'">Send by email instead</a>.'; }
+    btn.disabled=false;
+  });
+}
+handle('review-form','rf-status','rf-submit',()=>({name:$('#rf-name').value,company:$('#rf-company').value,role:$('#rf-role').value,email:$('#rf-email').value,phone:$('#rf-phone').value,customer:$('#rf-customer').value,parts:$('#rf-parts').value,date:$('#rf-date').value,type:'review',consent:$('#rf-consent').checked?'yes':''}));
+handle('sub-form','sf-status','sf-submit',()=>({name:'',company:$('#sf-company').value,role:'',email:$('#sf-email').value,phone:'',customer:'',parts:'',date:'',type:'notes',consent:$('#sf-consent').checked?'yes':''}));
+$('#wa-link').href='https://wa.me/'+CONFIG.whatsapp+'?text='+encodeURIComponent('Hi Aniket, I used the PPAP Pack Builder and would like to discuss a submission review.');
+
+/* ---------- Boot ---------- */
+let t0='part'; try{ t0=localStorage.getItem(LS_KEY+'.tab')||'part'; }catch(e){}
+if(!document.getElementById('p-'+t0)) t0='part';
+show(t0);
+})();
+</script>
+
+</body>
+</html>
